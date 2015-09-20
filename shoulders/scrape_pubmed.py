@@ -33,12 +33,12 @@ def getPaperFromID(pubID):
 	temp = noneformat_soup.find('authorlist')
 	authorLasts = temp.find_all('lastname')#.get_text()
 	authorFirsts = temp.find_all('forename')
-	print authorFirsts
+	#print authorFirsts
 	FinalAuthorNames = []
 	for i in range(len(authorLasts)):
 		name = authorFirsts[i].get_text() + ' ' +  authorLasts[i].get_text()
 		FinalAuthorNames.append((name,None))
-	print FinalAuthorNames
+	#print FinalAuthorNames
 	return Paper(title,href,FinalAuthorNames,None)
 
 def getListOfCitations(pubID):
@@ -64,11 +64,16 @@ def getListOfCitations(pubID):
 		adjList.append(tmp)
 	return adjList	
 
-def getCitedPapers(pubID):
+def getCitedPapers(paper):
+	pubID = paper.title_href[35:]
+	print pubID
 	adjList = getListOfCitations(pubID)
+	print adjList
 	ans = []
 	for i in adjList:
-		ans.append(getPaperFromID)
+		print i
+		ans.append(getPaperFromID(i))
+	return ans
 
 
 
@@ -87,9 +92,12 @@ class Paper:
 
 
 	#print noneformat_soup
-	#print noneformat_soup.find('')
+	#print noneforbmat_soup.find('')
 
-
+Paper1 = Paper('blah','http://www.ncbi.nlm.nih.gov/pubmed/123','blah','blah')
 pubID = 22606286
-getPaperInfo(createHTML(pubID),pubID)
-getListOfCitations(createHTML(pubID))
+print createHTML(pubID)
+print getListOfCitations(pubID)
+p1 = getPaperFromID(pubID)
+print getCitedPapers(p1)
+
