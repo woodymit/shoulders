@@ -1,4 +1,5 @@
 import ipdb
+import json
 
 import httplib
 import urllib
@@ -9,6 +10,12 @@ SEARCH_HOST = "scholar.google.com"
 SEARCH_BASE_URL = "/scholar"
 
 RESULTS_PER_PAGE = 20
+
+
+def search_string(string, limit):
+    terms = string.split(' ')
+    html = search_terms(terms, limit)
+    return scrape_results_page(html, limit)
 
 
 def search_terms(terms, limit):
@@ -56,6 +63,22 @@ class Paper:
 
     def __hash__(self):
         return hash(self.title_href)
+
+    # def json_repr(self):
+    #     return json.dumps({
+    #         'title:': self.title,
+    #         'title_href:': self.title_href,
+    #         'author_list:': self.author_list,
+    #         'citers_page_href:': self.citers_page_href
+    #         })
+
+    def get_data_dict(self):
+        return {
+            'title:': self.title,
+            'title_href:': self.title_href,
+            'author_list:': self.author_list,
+            'citers_page_href:': self.citers_page_href
+            }
 
 
 class CitationGraph:
