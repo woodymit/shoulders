@@ -21,9 +21,10 @@ def createHTML(pubID):
 	return html.decode('ascii', 'ignore')
 	# return html
 
-def getPaperInfo(html,pubID):
+def getPaperFromID(pubID):
 	#import ipdb
 	#ipdb.set_trace()
+	html = createHTML(pubID)
 	soup = BeautifulSoup(html, 'xml')
 	noneformat_str = soup.prettify(formatter=None)
 	noneformat_soup = BeautifulSoup(noneformat_str)
@@ -40,7 +41,18 @@ def getPaperInfo(html,pubID):
 	print FinalAuthorNames
 	return Paper(title,href,FinalAuthorNames,None)
 
-def getListOfCitations(html):
+def getListOfCitations(pubID):
+	SEARCH_HOST = "ncbi.nlm.nih.gov"
+	conn = httplib.HTTPConnection(SEARCH_HOST)
+	headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
+	url = "http://www.ncbi.nlm.nih.gov/pubmed/"+str(pubID)+"?report=xml"
+	conn.request("GET", url, '', headers)
+	resp = conn.getresponse()
+	if not resp.status == 200:
+		raise Exception('Response from Google Scholar url:' +
+			url + ' did not return with code 200')
+	html = resp.read()
+	html = html.decode('ascii','ignore')
 	soup = BeautifulSoup(html, 'xml')
 	noneformat_str = soup.prettify(formatter=None)
 	noneformat_soup = BeautifulSoup(noneformat_str)
@@ -50,8 +62,13 @@ def getListOfCitations(html):
 	for i in range(len(otherDocIDS)):
 		tmp = otherDocIDS[i].get_text()
 		adjList.append(tmp)
-	print adjList
-	
+	return adjList	
+
+def getCitedPapers(pubID):
+	adjList = getListOfCitations(pubID)
+	ans = []
+	for i in adjList:
+		ans.append(getPaperFromID)
 
 
 
