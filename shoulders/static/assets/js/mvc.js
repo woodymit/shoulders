@@ -10,6 +10,7 @@ function getAuthorName(currentValue, i, a) {
 
 function selectPaper(citers_page_href) {
     $("#console").empty();
+    console.log(citers_page_href)
     $("#console").append(citers_page_href);
 };
 
@@ -22,14 +23,18 @@ function handleSearchResponse(response) {
     for (i in parsed_json) {
         var p = parsed_json[i];
         var authors = p['author_list:'];
+        var citers = p['citers_page_href:'];
+        console.log(citers)
+
+        var splits = citers.split(/cites=([\d]+)&as_sdt/)
+        citers_num = splits[1]
 
         html_to_append = html_to_append +
         '<div class="page-header col-lg-8 col-centered searchResult">' + 
             '<h4 ><a id="search'+i.toString()+'">' + p['title:'] + '</a></h4>' +
             '<h5><a target="_blank" href="' + p['title_href:'] + '">Go to Article</a></h5>' +
             '<h5>' + authors.map(getAuthorName)  + '</h5>' +
-            '<h6>Not a real journal. 2014 Oct 23;514(7523):455-61. doi: 10.1038/nature13808. Epub 2014 Oct 8.</h6>' +
-            '<button class="btn" onclick="selectPaper('+p['citers_page_href']+')">Show Lineage</button>' +
+            '<button class="btn" onclick="selectPaper('+citers_num+')">Show Lineage</button>' +
         '</div>\n';
     }
 
