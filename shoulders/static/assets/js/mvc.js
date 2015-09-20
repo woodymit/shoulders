@@ -235,12 +235,36 @@ $(document).ready(function () {
         });
     });
 
-    renderD3(papers1);
+    $(document).on('click', function(){
+        renderD3(papers1);
+    });
 });
 
 
 function renderD3(paperList) {
-    svg = d3.select('svg');
+    duration=5000;
+
+    //size svg
+    svg = d3.select('svg')
+        .attr('width',width)
+        .attr('height',height);
+
+    // create arrow
+    svg.select('defs')
+        .selectAll('marker')
+        .data(['end'])
+      .enter().append('svg:marker')
+        .attr('id', 'end')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 10)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient','auto')
+      .append('svg:path')
+        .attr('d', 'M0,-5L10,0L0,5');
+
+    // create list of line data from paperList
     lineList = [];
     for(l in paperList){
         paper = paperList[l]
@@ -256,61 +280,12 @@ function renderD3(paperList) {
         }
     }
 
-    // create arrow
-    svg.append('svg:defs').selectAll('marker')
-        .data(['end'])
-      .enter().append('svg:marker')
-        .attr('id', 'end')
-        .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 10)
-        .attr('refY', 0)
-        .attr('markerWidth', 6)
-        .attr('markerHeight', 6)
-        .attr('orient','auto')
-      .append('svg:path')
-        .attr('d', 'M0,-5L10,0L0,5');
 
-    // var lines = svg.append('g')
-    //     .attr('class','lineGroup')
-    //     .selectAll('line')
-    //     .data(lineList)
-    //   .enter().append('line')
-    //     .attr('class','line')
-    //     .attr('x1',function(d){return d.endpoints[0];})
-    //     .attr('y1',function(d){return d.endpoints[1];})
-    //     .attr('x2',function(d){return d.endpoints[2];})
-    //     .attr('y2',function(d){return d.endpoints[3];})
-    //     .attr('stroke-width',3)
-    //     .attr('stroke','black')
-    //     .attr('marker-end', 'url(#end)');
-
-    // var nodes = svg.append('g')
-    //     .attr('class','nodeGroup')
-    //     .selectAll('circle')
-    //     .data(paperList)
-    //   .enter().append('g')
-    //     .attr('class','node')
-    //     .attr('transform', function(d) {
-    //         return 'translate(' + d.location[0] + ',' + d.location[1] + ')';
-    //     })
-    //     .on('click',function(){alert("Present info");});
-    // nodes.append('circle')
-    //     .attr('r',function(d){return d.radius})
-    //     .attr('fill','white')
-    //     .attr('stroke','black')
-    //     .attr('stroke-width','3');
-    // nodes.append('text')
-    //     .attr('text-anchor','middle')
-    //     .text(function(d) {
-    //         return d.title;
-    //     })
-    //     .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });    
-
-    duration=5000;
-    // update lines that stay
     var lines = svg.select('.lineGroup')
-        .selectAll('.line')
+        .selectAll('line')
+        .attr('class','line')
         .data(lineList, function(d) {return d.nodes;});
+    // update lines that stay
     lines.transition()
         .duration(duration)
         .attr('d',d3.svg.line().interpolate('linear'))
@@ -326,7 +301,8 @@ function renderD3(paperList) {
         .attr("opacity", 1e-6)
         .remove();
     // make new lines
-    var lineEnter = lines.enter().append('line')
+    var lineEnter = lines.enter()
+      .append('line')
         .attr('opacity',0)
         .attr('class','line')
         .attr('x1',function(d){return d.endpoints[0];})
@@ -339,12 +315,13 @@ function renderD3(paperList) {
       .transition()
         .duration(duration)
         .attr('opacity',1);
-        
 
-    // update nodes that stay
-    var nodes = svg.select('.nodeGroup')
-        .selectAll('.node')
+    
+    var nodes = svg.select('.lineGroup')
+        .selectAll('g')
+        .attr('class','node')
         .data(paperList, function(d) {return d.title;});
+    // update nodes that stay
     nodes.transition()
         .duration(duration)
         .attr('transform', function(d){return "translate(" + d.location[0] + ',' + d.location[1] + ")";})
