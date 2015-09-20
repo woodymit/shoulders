@@ -52,7 +52,7 @@ def convertAListToPoints(adjList, initPaper, width, length):
 						levelPlus1.append(pappe) #build next level of tree
 		NonNegativeLevels.append(levelPlus1) 
 
-	reverseDict = {} #Go the reverse direction to find predecessors
+	reverseDict = {} # Go the reverse direction to find predecessors
 	for key in adjList.keys():
 		for e in adjList[key]:
 			if e not in reverseDict:
@@ -92,8 +92,6 @@ def convertAListToPoints(adjList, initPaper, width, length):
 		for j in NonNegativeLevels[i]:
 			finalAns.append(j)
 
-	#for i in globalPaperDict.keys():
-
 	finalerAns = [] #This is the thing we will return
 
 	for i in finalAns:
@@ -110,12 +108,6 @@ def convertAListToPoints(adjList, initPaper, width, length):
 	return json_data #BLAM and you're done.
 
 
-
-
-
-
-
-
 class Paper:
 	def __init__(self, name):
 		self.name = name
@@ -126,36 +118,36 @@ class Paper:
 	def getDataDict(self):
 		return {'what':'hey'}
 
-adjList = {}
-paperA = Paper('A')
-paperB = Paper('B')
-paperC = Paper('C')
-paperD = Paper('E')
-paperE = Paper('E')
-paperF = Paper('F')
-paperG = Paper('G')
-paperH = Paper('H')
-paperI = Paper('I')
-paperJ = Paper('J')
-paperK = Paper('K')
-paperL = Paper('L')
-paperM = Paper('M')
-paperN = Paper('N')
-paperO = Paper('O')
-paperP = Paper('P')
-paperQ = Paper('Q')
-paperR = Paper('R')
-paperS = Paper('S')
-adjList[paperA] = [paperB,paperC]
-adjList[paperC] = [paperE,paperF,paperG]
-adjList[paperB] = [paperH,paperE]
-adjList[paperL] = [paperI] 
-adjList[paperI] = [paperA]
-adjList[paperM] = [paperK,paperJ]
-adjList[paperK] = [paperA]
-adjList[paperN] = [paperK]
-adjList[paperO] = [paperK]
-adjList[paperJ] = [paperA]
-adjList[paperH] = [paperS]
-initPaper = paperA
-convertAListToPoints(adjList,initPaper, 100, 100)
+# adjList = {}
+# paperA = Paper('A')
+# paperB = Paper('B')
+# paperC = Paper('C')
+# paperD = Paper('E')
+# paperE = Paper('E')
+# paperF = Paper('F')
+# paperG = Paper('G')
+# paperH = Paper('H')
+# paperI = Paper('I')
+# paperJ = Paper('J')
+# paperK = Paper('K')
+# paperL = Paper('L')
+# paperM = Paper('M')
+# paperN = Paper('N')
+# paperO = Paper('O')
+# paperP = Paper('P')
+# paperQ = Paper('Q')
+# paperR = Paper('R')
+# paperS = Paper('S')
+# adjList[paperA] = [paperB,paperC]
+# adjList[paperC] = [paperE,paperF,paperG]
+# adjList[paperB] = [paperH,paperE]
+# adjList[paperL] = [paperI] 
+# adjList[paperI] = [paperA]
+# adjList[paperM] = [paperK,paperJ]
+# adjList[paperK] = [paperA]
+# adjList[paperN] = [paperK]
+# adjList[paperO] = [paperK]
+# adjList[paperJ] = [paperA]
+# adjList[paperH] = [paperS]
+# initPaper = paperA
+# convertAListToPoints(adjList,initPaper, 100, 100)
