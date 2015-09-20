@@ -120,11 +120,13 @@ function handleSearchResponse(response) {
         var authors = p['author_list:'];
 
         html_to_append = html_to_append +
-        '<div onclick=selectPaper(' + p['citers_page_href:'] + ') class="page-header col-lg-8 col-centered searchResult">' +
-            '<h4><a href=' + p['title_href:'] + '>' + p['title:'] + '</a></h4>' +
+        '<div class="page-header col-lg-8 col-centered searchResult">' + 
+            '<h4 ><a id="search'+i.toString()+'">' + p['title:'] + '</a></h4>' +
+            '<h5><a target="_blank" href="' + p['title_href:'] + '">Go to Article</a></h5>' +
             '<h5>' + authors.map(getAuthorName)  + '</h5>' +
             '<h6>Not a real journal. 2014 Oct 23;514(7523):455-61. doi: 10.1038/nature13808. Epub 2014 Oct 8.</h6>' +
-        '</div>\n'
+            '<button class="btn" onclick="selectPaper('+p['citers_page_href']+')">Show Lineage</button>' +
+        '</div>\n';
     }
 
     var searchTitle = $('<div class="col-lg-8 col-centered text-center"><h2 class="heading seachTitle">Select an Article</h2></div>');
