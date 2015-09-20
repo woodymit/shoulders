@@ -17,7 +17,11 @@ var console = (function () {
         Searches for relevant articles.
         */
         function searchArticles() {
+            $("#console").empty();
             $("#scroll").click();
+
+            var searchTitle = $('<div class="col-lg-8 col-centered text-center"><h2 class="heading seachTitle">Select an Article</h2></div>');
+            $("#console").append(searchTitle);
         }
         
         /*
@@ -85,6 +89,8 @@ var console = (function () {
                 searchBtn.click();
             }
         });
+
+        
     }
     
     
