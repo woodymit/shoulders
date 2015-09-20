@@ -1,35 +1,33 @@
+import json
+
+def convertToJson(pape,citers):
+	position = (pape.xPos,pape.yPos)
+	mainDictionary = pape.getDataDict()
+	radius = pape.Radius
+	mainDictionary['location'] = position
+	mainDictionary['radius'] = radius
+	mainDictionary['citers'] = citers
+	return mainDictionary
+
+
+
 def convertAListToPoints(adjList, initPaper, width, length):
 	numLevels = 3
-	VERTSCALE = 1.5
+	VERTSCALE = 2
 	NonNegativeLevels = []
 	NonPositiveLevels = []
 	k = [1,0.1,0.01,0.001]
 	NonNegativeLevels.append([initPaper])
 	NonPositiveLevels.append([initPaper])	
-	#print NonNegativeLevels
 	globalCounter = 1
 	globalPaperDict = {}
 	globalPaperDict[initPaper] = globalCounter
-	#print globalPaperDict
 	initPaper.xPos = width/2.
 	initPaper.yPos = length/2.
-	#Level1 = adjList[initPaper]
-	#print NonNegativeLevels[0][0].xPos
-	#print Level1
-	
-	"""
-	for bigLevel in range(numLevels-1):
-		nodeList = NonNegativeLevels[bigLevel]
-		tempNodeList = []
-		for i in range(len(nodeList)):
-			for x in adjList[i]:
-				adjList[x]:
 
-	"""
 	
 	for bigLevel in range(numLevels+1):
 		currentLevel = NonNegativeLevels[bigLevel]
-		#print currentLevel
 		levelSum = 0
 		scalingFactor = (float)(2*VERTSCALE**bigLevel)
 		for pape in currentLevel:
@@ -38,16 +36,11 @@ def convertAListToPoints(adjList, initPaper, width, length):
 		levelPlus1 = []
 		i = 1
 		for pape in currentLevel:
-			#print pape.name
 			pape.yPos = length*1./scalingFactor
 			pape.xPos = i*width/((len(currentLevel)+1.0))
-			#print pape.xPos
-			#print pape.yPos
+
 			pape.Radius = width*pape.numCiters/(levelSum*1.0)*currentK
-			#print pape.Radius
 			i+=1	
-			#globalCounter+=1
-			#globalPaperDict[pape] = globalCounter
 			if pape in adjList:
 				for pappe in adjList[pape]:
 					if pappe in globalPaperDict:
@@ -56,14 +49,7 @@ def convertAListToPoints(adjList, initPaper, width, length):
 						globalCounter +=1
 						globalPaperDict[pappe] = globalCounter
 						levelPlus1.append(pappe)
-						#print len(levelPlus1)
-				#print levelPlus1
 		NonNegativeLevels.append(levelPlus1)
-				#print NonNegativeLevels
-	#print NonNegativeLevels
-	#print NonNegativeLevels[2]#[2].xPos
-	#print len(NonNegativeLevels)
-	print globalCounter
 	"""
 	print "hi"
 	print len(NonNegativeLevels)
@@ -105,28 +91,21 @@ def convertAListToPoints(adjList, initPaper, width, length):
 				reverseDict[e].append(key)
 
 	for bigLevel in range(0,numLevels+1):
-		print bigLevel
+		#print bigLevel
 		currentLevel = NonPositiveLevels[bigLevel]
-		#print currentLevel
 		levelSum = 0
 		scalingFactor = (float)(2*VERTSCALE**bigLevel)
 		for pape in currentLevel:
 			levelSum += pape.numCiters
-		print bigLevel
+		#print bigLevel
 		currentK = k[bigLevel]
 		levelPlus1 = []
 		i = 1
 		for pape in currentLevel:
-			#print pape.name
 			pape.yPos = length-length*1./scalingFactor
 			pape.xPos = i*width/((len(currentLevel)+1.0))
-			#print pape.xPos
-			#print pape.yPos
 			pape.Radius = width*pape.numCiters/(levelSum*1.0)*currentK
-			#print pape.Radius
 			i+=1	
-			#globalCounter+=1
-			#globalPaperDict[pape] = globalCounter
 			if pape in reverseDict:
 				for pappe in reverseDict[pape]:
 					if pappe in globalPaperDict:
@@ -135,28 +114,42 @@ def convertAListToPoints(adjList, initPaper, width, length):
 						globalCounter +=1
 						globalPaperDict[pappe] = globalCounter
 						levelPlus1.append(pappe)
-						#print len(levelPlus1)
-				#print levelPlus1
 		NonPositiveLevels.append(levelPlus1)
-				#print NonNegativeLevels
-	#print NonNegativeLevels
-	#print NonNegativeLevels[2]#[2].xPos
-	#print len(NonNegativeLevels)
-	#print globalCounter
 
 	finalAns = []
 	for i in NonPositiveLevels:
 		for j in i:
-			#print (j.name,j.xPos,j.yPos,j.Radius)
 			finalAns.append(j)
 	for i in range(1,len(NonNegativeLevels)):
 		for j in NonNegativeLevels[i]:
 			finalAns.append(j)
 
-	for i in finalAns:
-		print (i.name,i.xPos,i.yPos,i.Radius) 
+	for i in globalPaperDict.keys():
+		#print i.name
 
-	return finalAns
+	finalerAns = []
+
+	for i in finalAns:
+		citers = []
+		if i not in adjList:
+			pass
+		else:
+			for j in adjList[i]:
+				num = globalPaperDict[j]
+				citers.append(num)
+		#print i.name
+		#print convertToJson(i,citers)
+		finalerAns.append(convertToJson(i,citers))
+
+	json_data = json.dumps(finalerAns)
+	return json_data
+
+
+
+
+
+	
+	#return finalAns
 
 
 
@@ -167,6 +160,9 @@ class Paper:
 		self.numCiters = 10
 		self.xPos = -10
 		self.yPos = -10
+
+	def getDataDict(self):
+		return {'what':'hey'}
 
 adjList = {}
 paperA = Paper('A')
