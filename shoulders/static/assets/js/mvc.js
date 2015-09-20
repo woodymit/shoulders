@@ -48,8 +48,6 @@ var foo2 = [["B0",[width*1/5,height*5/6],[6],50],
 
 var papers1 = []
 var papers2 = []
-var lines1 = []
-var lines2 = []
 
 for(l in foo1) {
     papers1.push({
@@ -69,30 +67,7 @@ for(l in foo2) {
         'radius': foo2[l][3]
     })
 }
-for(l in papers1){
-    paper = papers1[l]
-    paperSuccessors = papers1[l].successors;
-    for(i in paperSuccessors){
-        successor = papers1[paperSuccessors[i]];
-        lines1.push({'endpoints': [paper.location[0],
-                                   paper.location[1]-paper.radius,
-                                   successor.location[0],
-                                   successor.location[1]+successor.radius],
-                      'nodes': [paper.title,successor.title]});
-    }
-}
-for(l in papers2){
-    paper = papers2[l]
-    paperSuccessors = papers2[l].successors;
-    for(i in paperSuccessors){
-        successor = papers2[paperSuccessors[i]];
-        lines2.push({'endpoints': [paper.location[0],
-                                  paper.location[1]-paper.radius,
-                                  successor.location[0],
-                                  successor.location[1]+successor.radius],
-                     'nodes': [paper.title,successor.title]});
-    }
-}
+
 
 function getAuthorName(currentValue, i, a) {
     if (!currentValue[1]) {
@@ -260,12 +235,28 @@ $(document).ready(function () {
         });
     });
 
-    // renderD3();
+    renderD3(papers1);
 });
 
 
-function renderD3() {
+function renderD3(paperList) {
+    svg = d3.select('svg');
+    lineList = [];
+    for(l in paperList){
+        paper = paperList[l]
+        paperSuccessors = paperList[l].successors;
+        for(i in paperSuccessors){
+            successor = paperList[paperSuccessors[i]];
+            lineList.push(
+                {'endpoints': [paper.location[0],
+                               paper.location[1]-paper.radius,
+                               successor.location[0],
+                               successor.location[1]+successor.radius],
+                 'nodes': [paper.title,successor.title]});
+        }
+    }
 
+    // create arrow
     svg.append('svg:defs').selectAll('marker')
         .data(['end'])
       .enter().append('svg:marker')
@@ -279,11 +270,64 @@ function renderD3() {
       .append('svg:path')
         .attr('d', 'M0,-5L10,0L0,5');
 
-    var lines = svg.append('g')
-        .attr('class','lineGroup')
-        .selectAll('line')
-        .data(lines1)
-      .enter().append('line')
+    // var lines = svg.append('g')
+    //     .attr('class','lineGroup')
+    //     .selectAll('line')
+    //     .data(lineList)
+    //   .enter().append('line')
+    //     .attr('class','line')
+    //     .attr('x1',function(d){return d.endpoints[0];})
+    //     .attr('y1',function(d){return d.endpoints[1];})
+    //     .attr('x2',function(d){return d.endpoints[2];})
+    //     .attr('y2',function(d){return d.endpoints[3];})
+    //     .attr('stroke-width',3)
+    //     .attr('stroke','black')
+    //     .attr('marker-end', 'url(#end)');
+
+    // var nodes = svg.append('g')
+    //     .attr('class','nodeGroup')
+    //     .selectAll('circle')
+    //     .data(paperList)
+    //   .enter().append('g')
+    //     .attr('class','node')
+    //     .attr('transform', function(d) {
+    //         return 'translate(' + d.location[0] + ',' + d.location[1] + ')';
+    //     })
+    //     .on('click',function(){alert("Present info");});
+    // nodes.append('circle')
+    //     .attr('r',function(d){return d.radius})
+    //     .attr('fill','white')
+    //     .attr('stroke','black')
+    //     .attr('stroke-width','3');
+    // nodes.append('text')
+    //     .attr('text-anchor','middle')
+    //     .text(function(d) {
+    //         return d.title;
+    //     })
+    //     .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });    
+
+    duration=5000;
+    // update lines that stay
+    var lines = svg.select('.lineGroup')
+        .selectAll('.line')
+        .data(lineList, function(d) {return d.nodes;});
+    lines.transition()
+        .duration(duration)
+        .attr('d',d3.svg.line().interpolate('linear'))
+        .attr('x1',function(d){return d.endpoints[0];})
+        .attr('y1',function(d){return d.endpoints[1];})
+        .attr('x2',function(d){return d.endpoints[2];})
+        .attr('y2',function(d){return d.endpoints[3];});
+    // get rid of old lines
+    lines.exit()
+      .attr('opacity',1)
+      .transition()
+        .duration(duration)
+        .attr("opacity", 1e-6)
+        .remove();
+    // make new lines
+    var lineEnter = lines.enter().append('line')
+        .attr('opacity',0)
         .attr('class','line')
         .attr('x1',function(d){return d.endpoints[0];})
         .attr('y1',function(d){return d.endpoints[1];})
@@ -291,104 +335,48 @@ function renderD3() {
         .attr('y2',function(d){return d.endpoints[3];})
         .attr('stroke-width',3)
         .attr('stroke','black')
-        .attr('marker-end', 'url(#end)');
+        .attr('marker-end', 'url(#end)')
+      .transition()
+        .duration(duration)
+        .attr('opacity',1);
+        
 
-    var nodes = svg.append('g')
-        .attr('class','nodeGroup')
-        .selectAll('circle')
-        .data(papers1)
-      .enter().append('g')
-        .attr('class','node')
+    // update nodes that stay
+    var nodes = svg.select('.nodeGroup')
+        .selectAll('.node')
+        .data(paperList, function(d) {return d.title;});
+    nodes.transition()
+        .duration(duration)
+        .attr('transform', function(d){return "translate(" + d.location[0] + ',' + d.location[1] + ")";})
+      .select('circle')
+        .attr('r',function(d){return d.radius;});
+    // get rid of old nodes
+    nodes.exit()
+      .attr('opacity',1)
+      .transition()
+        .duration(duration)
+        .attr("opacity", 1e-6)
+        .remove();
+    // make new nodes
+    nodeEnter = nodes.enter().append('g');
+    nodeEnter.attr('class','node')
+        .on('click',function(){alert("Present info");})
+        .attr('opacity',0)
         .attr('transform', function(d) {
             return 'translate(' + d.location[0] + ',' + d.location[1] + ')';
         })
-        .on('click',function(){alert("Present info");});
-    nodes.append('circle')
+    nodeEnter.append('circle')
         .attr('r',function(d){return d.radius})
         .attr('fill','white')
         .attr('stroke','black')
         .attr('stroke-width','3');
-    nodes.append('text')
+    nodeEnter.append('text')
         .attr('text-anchor','middle')
         .text(function(d) {
             return d.title;
         })
-        .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });    
-
-    $("#transitionButton").click(function() {
-        duration=5000;
-        // update lines that stay
-        var lines = svg.select('.lineGroup')
-            .selectAll('.line')
-            .data(lines2, function(d) {return d.nodes;});
-        lines.transition()
-            .duration(duration)
-            .attr('d',d3.svg.line().interpolate('linear'))
-            .attr('x1',function(d){return d.endpoints[0];})
-            .attr('y1',function(d){return d.endpoints[1];})
-            .attr('x2',function(d){return d.endpoints[2];})
-            .attr('y2',function(d){return d.endpoints[3];});
-        // get rid of old lines
-        lines.exit()
-          .attr('opacity',1)
-          .transition()
-            .duration(duration)
-            .attr("opacity", 1e-6)
-            .remove();
-        // make new lines
-        var lineEnter = lines.enter().append('line')
-            .attr('opacity',0)
-            .attr('class','line')
-            .attr('x1',function(d){return d.endpoints[0];})
-            .attr('y1',function(d){return d.endpoints[1];})
-            .attr('x2',function(d){return d.endpoints[2];})
-            .attr('y2',function(d){return d.endpoints[3];})
-            .attr('stroke-width',3)
-            .attr('stroke','black')
-            .attr('marker-end', 'url(#end)')
-          .transition()
-            .duration(duration)
-            .attr('opacity',1);
-        
-
-        // update nodes that stay
-        var nodes = svg.select('.nodeGroup')
-            .selectAll('.node')
-            .data(papers2, function(d) {return d.title;});
-        nodes.transition()
-            .duration(duration)
-            .attr('transform', function(d){return "translate(" + d.location[0] + ',' + d.location[1] + ")";})
-          .select('circle')
-            .attr('r',function(d){return d.radius;});
-        // get rid of old nodes
-        nodes.exit()
-          .attr('opacity',1)
-          .transition()
-            .duration(duration)
-            .attr("opacity", 1e-6)
-            .remove();
-        // make new nodes
-        nodeEnter = nodes.enter().append('g');
-        nodeEnter.attr('class','node')
-            .on('click',function(){alert("Present info");})
-            .attr('opacity',0)
-            .attr('transform', function(d) {
-                return 'translate(' + d.location[0] + ',' + d.location[1] + ')';
-            })
-        nodeEnter.append('circle')
-            .attr('r',function(d){return d.radius})
-            .attr('fill','white')
-            .attr('stroke','black')
-            .attr('stroke-width','3');
-        nodeEnter.append('text')
-            .attr('text-anchor','middle')
-            .text(function(d) {
-                return d.title;
-            })
-            .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });
-        nodeEnter.transition()
-            .duration(duration)
-            .attr('opacity',1);
-        });
-
+        .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });
+    nodeEnter.transition()
+        .duration(duration)
+        .attr('opacity',1);
 };
