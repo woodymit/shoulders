@@ -32,7 +32,7 @@ function UpdateHandler() {
         handlers[event] = callbacks;
     }
     
-     /*
+    /*
     calls all functions that are listeners
     event = event that occured
     data = data to pass to the callback functions.

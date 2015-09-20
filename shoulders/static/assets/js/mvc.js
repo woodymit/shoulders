@@ -106,8 +106,8 @@ var console = (function () {
     */
     function Model() {
         var c = C(),
-            exports = {},
-            handler = UpdateHandler();
+        exports = {},
+        handler = UpdateHandler();
 
         /*
         Searches for relevant articles.
@@ -185,11 +185,8 @@ var console = (function () {
                 searchBtn.click();
             }
         });
-
-        
     }
-    
-    
+
     /*
     Creates a model, view and controller system 
     */
@@ -220,17 +217,21 @@ $(document).ready(function () {
         });
     });
 
-    //D3 
+    renderD3();
+});
 
+
+function renderD3() {
+    //D3
     var svg = d3.select('svg')
-        .attr('width',width)
-        .attr('height',height);
+        .attr('width', width)
+        .attr('height', height);
 
     // var defs = svg.append('svg:defs');
     // var marker = defs.selectAll('marker')
     //  .data([{ id: 0, name:'arrow',path: 'M 0,0 m -5,-5 L 5,0 L -5,5 Z', viewbox: '-5 -5 10 10'}])
- //      .enter().append('svg:marker')
- //        .attr
+    //      .enter().append('svg:marker')
+    //        .attr
     svg.append('svg:defs').selectAll('marker')
         .data(['end'])
       .enter().append('svg:marker')
@@ -332,4 +333,4 @@ $(document).ready(function () {
             })
             .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });
     });
-});
+};
