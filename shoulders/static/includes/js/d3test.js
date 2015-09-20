@@ -74,7 +74,11 @@ for(l in papers1){
 	paperSuccessors = papers1[l].successors;
 	for(i in paperSuccessors){
 		successor = papers1[paperSuccessors[i]];
-		lines1.push([paper.location[0],paper.location[1]-paper.radius,successor.location[0],successor.location[1]+successor.radius]);
+		lines1.push({'endpoints': [paper.location[0],
+								   paper.location[1]-paper.radius,
+								   successor.location[0],
+								   successor.location[1]+successor.radius],
+					  'nodes': [paper.title,successor.title]});
 	}
 }
 for(l in papers2){
@@ -82,7 +86,11 @@ for(l in papers2){
 	paperSuccessors = papers2[l].successors;
 	for(i in paperSuccessors){
 		successor = papers2[paperSuccessors[i]];
-		lines2.push([paper.location[0],paper.location[1]-paper.radius,successor.location[0],successor.location[1]+successor.radius]);
+		lines2.push({'endpoints': [paper.location[0],
+								  paper.location[1]-paper.radius,
+								  successor.location[0],
+								  successor.location[1]+successor.radius],
+					 'nodes': [paper.title,successor.title]});
 	}
 }
 
@@ -92,13 +100,18 @@ $(document).ready(function(){
 	    .attr('width',width)
 	    .attr('height',height);
 
+	// var defs = svg.append('svg:defs');
+	// var marker = defs.selectAll('marker')
+	// 	.data([{ id: 0, name:'arrow',path: 'M 0,0 m -5,-5 L 5,0 L -5,5 Z', viewbox: '-5 -5 10 10'}])
+ //      .enter().append('svg:marker')
+ //        .attr
 	svg.append('svg:defs').selectAll('marker')
 	    .data(['end'])
 	  .enter().append('svg:marker')
 	    .attr('id', 'end')
 	    .attr('viewBox', '0 -5 10 10')
-	    .attr('refX', 15)
-	    .attr('refY',-1.5)
+	    .attr('refX', 10)
+	    .attr('refY', 0)
 	    .attr('markerWidth', 6)
 	    .attr('markerHeight', 6)
 	    .attr('orient','auto')
@@ -109,10 +122,10 @@ $(document).ready(function(){
         .data(lines1)
       .enter().append('line')
       	.attr('class','line')
-      	.attr('x1',function(d){return d[0];})
-      	.attr('y1',function(d){return d[1];})
-      	.attr('x2',function(d){return d[2];})
-      	.attr('y2',function(d){return d[3];})
+      	.attr('x1',function(d){return d.endpoints[0];})
+      	.attr('y1',function(d){return d.endpoints[1];})
+      	.attr('x2',function(d){return d.endpoints[2];})
+      	.attr('y2',function(d){return d.endpoints[3];})
       	.attr('stroke-width',3)
       	.attr('stroke','black')
       	.attr('marker-end', 'url(#end)');
@@ -125,12 +138,12 @@ $(document).ready(function(){
 	 	.selectAll('circle')
         .data(papers1)
       .enter().append('g')
+        .attr('class','node')
         .attr('transform', function(d) {
         	return 'translate(' + d.location[0] + ',' + d.location[1] + ')';
         })
         .on('click',function(){alert("Present info");});
     nodes.append('circle')
-        .attr('class','node')
         .attr('r',function(d){return d.radius})
         .attr('fill','white')
         .attr('stroke','black')
@@ -143,9 +156,54 @@ $(document).ready(function(){
         .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });    
 
     $("#transitionButton").click(function() {
-    	// var line = svg.selectAll('.line')
-    	// 	.data(function(d) {return d.title;});
-    	// var lineUpdate = d3.transition(line)
-    	//     .attr('d',d3.scg.line().interpolate('linear'));
+    	// update lines that stay
+    	var line = svg.selectAll('.line')
+    		.data(lines2, function(d) {return d.nodes;});
+    	var lineUpdate = d3.transition(line)
+    	    .attr('d',d3.svg.line().interpolate('linear'));
+    	lineUpdate.attr('x1',function(d){return d.endpoints[0];})
+      	    .attr('y1',function(d){return d.endpoints[1];})
+      	    .attr('x2',function(d){return d.endpoints[2];})
+      	    .attr('y2',function(d){return d.endpoints[3];});
+      	// get rid of old lines
+      	line.exit().remove();
+      	// make new lines
+      	var lineUpdate = line.enter().append('line')
+      	    .attr('class','line')
+	      	.attr('x1',function(d){return d.endpoints[0];})
+	      	.attr('y1',function(d){return d.endpoints[1];})
+	      	.attr('x2',function(d){return d.endpoints[2];})
+	      	.attr('y2',function(d){return d.endpoints[3];})
+	      	.attr('stroke-width',3)
+	      	.attr('stroke','black')
+	      	.attr('marker-end', 'url(#end)');
+     	
+
+     	// update nodes that stay
+      	var node = svg.selectAll('.node')
+      	    .data(papers2, function(d) {return d.title;})
+      	var nodeUpdate = d3.transition(node)
+      	    .attr('transform', function(d){return "translate(" + d.location[0] + ',' + d.location[1] + ")";});
+      	nodeUpdate.attr('r', function(d){return d.radius;})
+      	// get rid of old nodes
+      	node.exit().remove();
+      	// make new nodes
+      	var nodeEnter = node.enter().append('g')
+      	    .attr('class','node')
+      	    .attr('transform', function(d) {
+      	   		return 'translate(' + d.location[0] + ',' + d.location[1] + ')';
+      	    })
+      	    .on('click',function(){alert("Present info");});
+	    nodeEnter.append('circle')
+	        .attr('r',function(d){return d.radius})
+	        .attr('fill','white')
+	        .attr('stroke','black')
+	        .attr('stroke-width','3');
+	    nodeEnter.append('text')
+	        .attr('text-anchor','middle')
+	        .text(function(d) {
+	        	return d.title;
+	        })
+	        .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });
     });
 });
