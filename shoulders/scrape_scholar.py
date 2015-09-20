@@ -86,7 +86,7 @@ class CitationGraph:
         self.children = {center_paper: []}
         self.center = center_paper
         self.newest_edge = set([center_paper])
-        self.oldest_edge = [center_paper]
+        self.oldest_edge = set([center_paper])
 
     def expand_newest_edge(self, iterations=1):
         next_edge = set()
@@ -96,6 +96,18 @@ class CitationGraph:
             for child in child_list:
                 if child not in self.newest_edge:
                     next_edge.add(child)
+
+    # def expand_oldest_edge(self, iterations=1):
+    #     next_edge = set()
+    #     for child in self.oldest_edge:
+    #         parent_list = get_cited_papers(child)
+    #         for parent in parent_list:
+    #             if parent not in self.children:
+    #                 self.children[parent] = [child]
+    #             else:
+    #                 self.children[parent].append(child)
+    #             if parent not in self.oldest_edge:
+    #                 next_edge.add(parent)
 
 
 def parse_result(result_tag):
