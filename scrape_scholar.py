@@ -1,3 +1,5 @@
+import ipdb
+
 import httplib
 import urllib
 from bs4 import BeautifulSoup
@@ -25,35 +27,63 @@ def get_html(terms, limit):
     return html.decode('ascii', 'ignore')
 
 
-def search_terms(html):
+class Paper:
+    def __init__(self, title, title_href, author_list, cited_by_href):
+        self.title = title
+        self.title_href = title_href
+        self.author_list = author_list
+        self.cited_by_href = cited_by_href
 
-    soup = BeautifulSoup(html)
 
-    d = []
-    for result_tag in soup.find_all(class_='gs_ri'):
-        h3_tag = result_tag.find_next('h3')
-        title = h3_tag.get_text()
+def parse_result(result_tag):
+    h3_tag = result_tag.find_next('h3')
+    title = h3_tag.get_text()
 
-        title_a_tag = h3_tag.find_next('a')
-        if title_a_tag:
-            title_href = title_a_tag.get('href')
+    title_a_tag = h3_tag.find_next('a')
+    if title_a_tag:
+        title_href = title_a_tag.get('href')
+    else:
+        title_href = None
+
+    cited_by_href = None
+    for a_tag in result_tag.find_all('a'):
+        if re.match('Cited by [\d]+', a_tag.get_text()):
+            cited_by_href = a_tag.get('href')
+            break
+
+    author_list = []
+    authors_tag = result_tag.find_next(class_='gs_a')
+    for author_html in str(authors_tag).split(','):
+        author_soup = BeautifulSoup(author_html)
+        # ipdb.set_trace()
+        author_link_list = author_soup.find_all('a')
+        if author_link_list:
+            author_href = author_link_list[0].get('href')
         else:
-            title_href = None
+            author_href = None
+        author_name = author_soup.get_text()
 
-        cited_by_href = None
-        for a_tag in result_tag.find_all('a'):
-            if re.match('Cited by [\d]+', a_tag.get_text()):
-                cited_by_href = a_tag.get('href')
-                break
+        ellipsis_index = author_name.find(u'\xe2\x80\xa6')
+        if ellipsis_index != -1:
+            author_name = author_name[:ellipsis_index]
+            author_list.append((author_name, author_href))
+            break
 
-        d.append((title, title_href, cited_by_href))
+        author_list.append((author_name, author_href))
 
-    return d
+    return Paper(title, title_href, author_list, cited_by_href)
 
 
-if __name__ == '__main__':
-    terms = ['Genomically', 'recoded', 'organisms']
-    limit = 20
-    html = get_html(terms, limit)
-    d = search_terms(html)
-    print d
+def scrape_results_page(html):
+
+    paper_list = []
+    soup = BeautifulSoup(html)
+    for result_tag in soup.find_all(class_='gs_ri'):
+        paper_list.append(parse_result(result_tag))
+
+    return paper_list
+
+
+# def get_cited_papers(parent_paper):
+
+#     assert parent_paper.cited_by_href
