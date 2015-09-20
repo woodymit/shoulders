@@ -1,7 +1,7 @@
 var width = window.innerWidth;
 var height = window.innerHeight;
 
-var foo = [["A0",[width*1/8,height*5/6],[7],50],
+var foo1 = [["A0",[width*1/8,height*5/6],[7],50],
 		["A1",[width*2/8,height*5/6],[7,8],50],
 		["A2",[width*3/8,height*5/6],[8],50],
 		["A3",[width*4/5,height*5/6],[8,9,10],50],
@@ -37,7 +37,7 @@ var foo2 = [["B0",[width*1/5,height*5/6],[6],50],
 		["E0",[width*1/5,height*2/6],[13,14,15],50],
 		["E1",[width*2/5,height*2/6],[15],50],
 		["E2",[width*3/5,height*2/6],[16,17],50],
-		["E3",[width*4/5,height*2/6],[17,18],50],
+		["E3",[width*4/5,height*2/6],[17],50],
 		["F0",[width*1/7,height*1/6],[],50],
 		["F1",[width*2/7,height*1/6],[],50],
 		["F2",[width*3/7,height*1/6],[],50],
@@ -51,22 +51,22 @@ var papers2 = []
 var lines1 = []
 var lines2 = []
 
-for(l in foo) {
+for(l in foo1) {
 	papers1.push({
-		'title': foo[l][0],
+		'title': foo1[l][0],
 		'title_href': "",
-		'successors': foo[l][2],
-		'location': foo[l][1],
-		'radius': foo[l][3]
+		'successors': foo1[l][2],
+		'location': foo1[l][1],
+		'radius': foo1[l][3]
 	})
 }
 for(l in foo2) {
 	papers2.push({
-		'title': foo[l][0],
-		'title-href': "",
-		'successors': foo[l][1],
-		'location': foo[l][2],
-		'radius': foo[l][3]
+		'title': foo2[l][0],
+		'title_href': "",
+		'successors': foo2[l][2],
+		'location': foo2[l][1],
+		'radius': foo2[l][3]
 	})
 }
 for(l in papers1){
@@ -75,6 +75,14 @@ for(l in papers1){
 	for(i in paperSuccessors){
 		successor = papers1[paperSuccessors[i]];
 		lines1.push([paper.location[0],paper.location[1]-paper.radius,successor.location[0],successor.location[1]+successor.radius]);
+	}
+}
+for(l in papers2){
+	paper = papers2[l]
+	paperSuccessors = papers2[l].successors;
+	for(i in paperSuccessors){
+		successor = papers2[paperSuccessors[i]];
+		lines2.push([paper.location[0],paper.location[1]-paper.radius,successor.location[0],successor.location[1]+successor.radius]);
 	}
 }
 
@@ -86,20 +94,21 @@ $(document).ready(function(){
 
 	svg.append('svg:defs').selectAll('marker')
 	    .data(['end'])
-	    .attr('id', String)
 	  .enter().append('svg:marker')
+	    .attr('id', 'end')
 	    .attr('viewBox', '0 -5 10 10')
 	    .attr('refX', 15)
 	    .attr('refY',-1.5)
 	    .attr('markerWidth', 6)
 	    .attr('markerHeight', 6)
 	    .attr('orient','auto')
-	    .append('svg:path')
+	  .append('svg:path')
 	    .attr('d', 'M0,-5L10,0L0,5');
 
-	var lines = svg.selectAll('line')
+	var lines = svg.append('svg:g').selectAll('line')
         .data(lines1)
       .enter().append('line')
+      	.attr('class','line')
       	.attr('x1',function(d){return d[0];})
       	.attr('y1',function(d){return d[1];})
       	.attr('x2',function(d){return d[2];})
@@ -107,6 +116,9 @@ $(document).ready(function(){
       	.attr('stroke-width',3)
       	.attr('stroke','black')
       	.attr('marker-end', 'url(#end)');
+
+    svg.selectAll(".line")
+    .attr("marker-end", "url(#end)");
 
 	var nodes = svg.append('g')
 	    .attr('class','nodes')
@@ -129,4 +141,11 @@ $(document).ready(function(){
         	return d.title;
         })
         .attr('class', 'hyper').on('click',function(d){window.location.href = d.title_href });    
+
+    $("#transitionButton").click(function() {
+    	// var line = svg.selectAll('.line')
+    	// 	.data(function(d) {return d.title;});
+    	// var lineUpdate = d3.transition(line)
+    	//     .attr('d',d3.scg.line().interpolate('linear'));
+    });
 });
