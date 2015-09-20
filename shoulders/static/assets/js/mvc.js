@@ -94,7 +94,43 @@ for(l in papers2){
     }
 }
 
-var console = (function () {
+function getAuthorName(currentValue, i, a) {
+    if (!currentValue[1]) {
+        return currentValue[0]
+    };
+
+    return '<a href=' + currentValue[1] + '>' + currentValue[0] + '</a>'
+};
+
+function selectPaper(citers_page_href) {
+    $("#console").empty();
+    $("#console").append(citers_page_href);
+};
+
+function handleSearchResponse(response) {
+    // console.log(response);
+    html_to_append = '';
+
+    var parsed_json = JSON.parse(response);
+
+    for (i in parsed_json) {
+        var p = parsed_json[i];
+        var authors = p['author_list:'];
+
+        html_to_append = html_to_append +
+        '<div onclick=selectPaper(' + p['citers_page_href:'] + ') class="page-header col-lg-8 col-centered searchResult">' +
+            '<h4><a href=' + p['title_href:'] + '>' + p['title:'] + '</a></h4>' +
+            '<h5>' + authors.map(getAuthorName)  + '</h5>' +
+            '<h6>Not a real journal. 2014 Oct 23;514(7523):455-61. doi: 10.1038/nature13808. Epub 2014 Oct 8.</h6>' +
+        '</div>\n'
+    }
+
+    var searchTitle = $('<div class="col-lg-8 col-centered text-center"><h2 class="heading seachTitle">Select an Article</h2></div>');
+    $("#console").append(searchTitle, html_to_append);
+    $("#scroll").click();
+};
+
+var mvc = (function () {
     
     ///////////////////////////////////////
     /////
@@ -114,10 +150,15 @@ var console = (function () {
         */
         function searchArticles() {
             $("#console").empty();
-            $("#scroll").click();
 
-            var searchTitle = $('<div class="col-lg-8 col-centered text-center"><h2 class="heading seachTitle">Select an Article</h2></div>');
-            $("#console").append(searchTitle);
+            var search_string = $('#search-txt').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '/search',
+                data: {'search_string': search_string},
+                success: handleSearchResponse
+            });
         }
         
         /*
@@ -178,7 +219,7 @@ var console = (function () {
 
         var searchBtn = $('<button id="search-btn" class="btn btn-info btn-lg" type="button"><i class="glyphicon glyphicon-search"></i></button>');
         $(".input-group-btn").append(searchBtn);
-        searchBtn.on('click', controller.makeGraph);
+        searchBtn.on('click', controller.searchArticles);
 
         $("#search-txt").keyup(function(event){
             if(event.keyCode == 13){
@@ -201,7 +242,7 @@ var console = (function () {
 
 $(document).ready(function () {
     $('#console').each(function () {
-        console.setup($(this));
+        mvc.setup($(this));
     });
 
     $('a[href^="#"]').on('click',function (e) {
@@ -217,7 +258,7 @@ $(document).ready(function () {
         });
     });
 
-    renderD3();
+    // renderD3();
 });
 
 
