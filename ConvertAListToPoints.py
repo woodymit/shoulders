@@ -1,6 +1,6 @@
 import json
 
-def convertToJson(pape,citers):
+def convertToJson(pape,citers): #This method converts things to a dict
 	position = (pape.xPos,pape.yPos)
 	mainDictionary = pape.getDataDict()
 	radius = pape.Radius
@@ -12,33 +12,34 @@ def convertToJson(pape,citers):
 
 
 def convertAListToPoints(adjList, initPaper, width, length):
-	numLevels = 3
-	VERTSCALE = 2
+	#This is the main method for this file. It returns a JSON with info
+	numLevels = 3 #depth of tree
+	VERTSCALE = 2 #the smaller, the more spread out
 	NonNegativeLevels = []
 	NonPositiveLevels = []
-	k = [1,0.1,0.01,0.001]
+	k = [1,0.1,0.01,0.001] #constants that determine bubble size
 	NonNegativeLevels.append([initPaper])
 	NonPositiveLevels.append([initPaper])	
 	globalCounter = 1
-	globalPaperDict = {}
+	globalPaperDict = {} #Ends up containing every paper.
 	globalPaperDict[initPaper] = globalCounter
-	initPaper.xPos = width/2.
+	initPaper.xPos = width/2. #Center of page
 	initPaper.yPos = length/2.
 
 	
-	for bigLevel in range(numLevels+1):
+	for bigLevel in range(numLevels+1): #bigLevel is the level of the tree
 		currentLevel = NonNegativeLevels[bigLevel]
 		levelSum = 0
-		scalingFactor = (float)(2*VERTSCALE**bigLevel)
+		scalingFactor = (float)(2*VERTSCALE**bigLevel) #depends on level oftree
 		for pape in currentLevel:
-			levelSum += pape.numCiters
+			levelSum += pape.numCiters #normalize numciters across each depth
 		currentK = k[bigLevel]
-		levelPlus1 = []
+		levelPlus1 = [] #build the next level of the tree
 		i = 1
 		for pape in currentLevel:
-			pape.yPos = length*1./scalingFactor
+			pape.yPos = length*1./scalingFactor #Determines position
 			pape.xPos = i*width/((len(currentLevel)+1.0))
-
+			#scale radius by k as well as by numCiters/total citations
 			pape.Radius = width*pape.numCiters/(levelSum*1.0)*currentK
 			i+=1	
 			if pape in adjList:
@@ -48,41 +49,10 @@ def convertAListToPoints(adjList, initPaper, width, length):
 					else:
 						globalCounter +=1
 						globalPaperDict[pappe] = globalCounter
-						levelPlus1.append(pappe)
-		NonNegativeLevels.append(levelPlus1)
-	"""
-	print "hi"
-	print len(NonNegativeLevels)
-	print "yo"
-	for x in NonNegativeLevels:
-		#print len(x)
-		print 'yo'
-		for pape in x:
-			print pape.name
-			print pape.xPos
-			print pape.yPos
-			print pape.Radius
-	"""
+						levelPlus1.append(pappe) #build next level of tree
+		NonNegativeLevels.append(levelPlus1) 
 
-
-	"""
-	Level1Sum = 0
-	for pape in Level1:  #build level1
-		Level1Sum += pape.numCiters
-	k1 = 0.01
-	i = 1
-	Level2 = []
-	for pape in Level1:
-		pape.yPos = length*1./4.
-		pape.Radius = width*pape.numCiters/(Level1Sum*1.0)*k1
-		pape.xPos = i*width/((len(Level1)+1)*1.0)
-		i+=1
-		globalCounter+=1
-		globalPaperDict[pape] = globalCounter
-		#print (pape.xPos,pape.yPos,pape.Radius)
-		for pappe in adjList[pape]
-	"""	
-	reverseDict = {}
+	reverseDict = {} #Go the reverse direction to find predecessors
 	for key in adjList.keys():
 		for e in adjList[key]:
 			if e not in reverseDict:
@@ -90,14 +60,12 @@ def convertAListToPoints(adjList, initPaper, width, length):
 			else:
 				reverseDict[e].append(key)
 
-	for bigLevel in range(0,numLevels+1):
-		#print bigLevel
+	for bigLevel in range(0,numLevels+1): #perform the same shits as above
 		currentLevel = NonPositiveLevels[bigLevel]
 		levelSum = 0
 		scalingFactor = (float)(2*VERTSCALE**bigLevel)
 		for pape in currentLevel:
 			levelSum += pape.numCiters
-		#print bigLevel
 		currentK = k[bigLevel]
 		levelPlus1 = []
 		i = 1
@@ -116,7 +84,7 @@ def convertAListToPoints(adjList, initPaper, width, length):
 						levelPlus1.append(pappe)
 		NonPositiveLevels.append(levelPlus1)
 
-	finalAns = []
+	finalAns = [] #Create the final ans, list of people
 	for i in NonPositiveLevels:
 		for j in i:
 			finalAns.append(j)
@@ -124,10 +92,9 @@ def convertAListToPoints(adjList, initPaper, width, length):
 		for j in NonNegativeLevels[i]:
 			finalAns.append(j)
 
-	for i in globalPaperDict.keys():
-		#print i.name
+	#for i in globalPaperDict.keys():
 
-	finalerAns = []
+	finalerAns = [] #This is the thing we will return
 
 	for i in finalAns:
 		citers = []
@@ -135,21 +102,16 @@ def convertAListToPoints(adjList, initPaper, width, length):
 			pass
 		else:
 			for j in adjList[i]:
-				num = globalPaperDict[j]
+				num = globalPaperDict[j] 
 				citers.append(num)
-		#print i.name
-		#print convertToJson(i,citers)
-		finalerAns.append(convertToJson(i,citers))
+		finalerAns.append(convertToJson(i,citers)) #first method
 
 	json_data = json.dumps(finalerAns)
-	return json_data
+	return json_data #BLAM and you're done.
 
 
 
 
-
-	
-	#return finalAns
 
 
 
