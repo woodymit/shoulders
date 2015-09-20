@@ -100,3 +100,13 @@ h2 {
 #custom-search-input .glyphicon-search{
     font-size: 23px;
 }
+
+.hyper {
+    color: blue;
+    text-decoration: underline;
+}
+
+.hyper:hover {
+    color: yellow;
+    text-decoration: none;
+}
