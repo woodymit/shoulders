@@ -1,5 +1,6 @@
 def convertAListToPoints(adjList, initPaper, width, length):
 	numLevels = 3
+	VERTSCALE = 1.5
 	NonNegativeLevels = []
 	NonPositiveLevels = []
 	k = [1,0.1,0.01,0.001]
@@ -26,11 +27,11 @@ def convertAListToPoints(adjList, initPaper, width, length):
 
 	"""
 	
-	for bigLevel in range(0,numLevels+1):
+	for bigLevel in range(numLevels+1):
 		currentLevel = NonNegativeLevels[bigLevel]
 		#print currentLevel
 		levelSum = 0
-		scalingFactor = (float)(2*2**bigLevel)
+		scalingFactor = (float)(2*VERTSCALE**bigLevel)
 		for pape in currentLevel:
 			levelSum += pape.numCiters
 		currentK = k[bigLevel]
@@ -102,17 +103,16 @@ def convertAListToPoints(adjList, initPaper, width, length):
 				reverseDict[e] = [key]
 			else:
 				reverseDict[e].append(key)
-	for j in reverseDict.keys:
-		print j.name
 
 	for bigLevel in range(0,numLevels+1):
 		print bigLevel
 		currentLevel = NonPositiveLevels[bigLevel]
 		#print currentLevel
 		levelSum = 0
-		scalingFactor = (float)(2*2**bigLevel)
+		scalingFactor = (float)(2*VERTSCALE**bigLevel)
 		for pape in currentLevel:
 			levelSum += pape.numCiters
+		print bigLevel
 		currentK = k[bigLevel]
 		levelPlus1 = []
 		i = 1
@@ -128,7 +128,7 @@ def convertAListToPoints(adjList, initPaper, width, length):
 			#globalCounter+=1
 			#globalPaperDict[pape] = globalCounter
 			if pape in reverseDict:
-				for pappe in adjList[pape]:
+				for pappe in reverseDict[pape]:
 					if pappe in globalPaperDict:
 						pass
 					else:
@@ -144,9 +144,20 @@ def convertAListToPoints(adjList, initPaper, width, length):
 	#print len(NonNegativeLevels)
 	#print globalCounter
 
+	finalAns = []
 	for i in NonPositiveLevels:
 		for j in i:
-			print (j.name,j.xPos,j.yPos,j.Radius)
+			#print (j.name,j.xPos,j.yPos,j.Radius)
+			finalAns.append(j)
+	for i in range(1,len(NonNegativeLevels)):
+		for j in NonNegativeLevels[i]:
+			finalAns.append(j)
+
+	for i in finalAns:
+		print (i.name,i.xPos,i.yPos,i.Radius) 
+
+	return finalAns
+
 
 
 
