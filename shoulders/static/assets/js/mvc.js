@@ -6,6 +6,7 @@ function getAuthorName(currentValue, i, a) {
     return '<a href=' + currentValue[1] + '>' + currentValue[0] + '</a>'
 };
 
+<<<<<<< HEAD
 for(l in foo1) {
     papers1.push({
         'title': foo1[l][0],
@@ -24,14 +25,34 @@ for(l in foo2) {
         'radius': foo2[l][3]
     })
 }
+=======
 
-function selectPaper(citers_page_href) {
+function handleGraphCreateResponse(response) {
+>>>>>>> c3e7459321f7ad18f435f7493a53de9919fa93b8
+
+    var parsed_json = JSON.parse(response);
+    // ## RENDER D3 HERE
+    console.log('parsed_json: '); 
+    console.log(parsed_json);
+    renderD3(parsed_json);
+
+};
+
+
+function selectPaper(title) {
     $("#console").empty();
-    $("#console").append(citers_page_href);
+    $.ajax({
+            type: 'POST',
+            url: '/graph',
+            data: {'title': title,
+                    // 'citer_page_num': citers_page_num,
+                    'height': window.innerHeight,
+                    'width': window.innerWidth},
+            success: handleGraphCreateResponse
+        });
 };
 
 function handleSearchResponse(response) {
-    // console.log(response);
     html_to_append = '';
 
     var parsed_json = JSON.parse(response);
@@ -39,14 +60,22 @@ function handleSearchResponse(response) {
     for (i in parsed_json) {
         var p = parsed_json[i];
         var authors = p['author_list:'];
+        var citers = p['citers_page_href:'];
+        var title = p['title:'];
+        var title_href = p['title_href:'];
+
+        // var splits = citers.split(/cites=([\d]+)&as_sdt/);
+        // citers_num = splits[1];
 
         html_to_append = html_to_append +
-        '<div onclick=selectPaper(' + p['citers_page_href:'] + ') class="page-header col-lg-8 col-centered searchResult">' +
-            '<h4><a href=' + p['title_href:'] + '>' + p['title:'] + '</a></h4>' +
+        '<div class="page-header col-lg-8 col-centered searchResult">' + 
+            '<h4 ><a id="search' + i.toString() + '">' + title + '</a></h4>' +
+            '<h5><a target="_blank" href="' + title_href + '">Go to Article</a></h5>' +
             '<h5>' + authors.map(getAuthorName)  + '</h5>' +
-            '<h6>Not a real journal. 2014 Oct 23;514(7523):455-61. doi: 10.1038/nature13808. Epub 2014 Oct 8.</h6>' +
-        '</div>\n'
-    }
+            '<button class="btn" onclick="selectPaper(&quot;' + title + '&quot;)">Show Lineage</button>' +
+            // '<button class="btn" onclick="selectPaper(&quot;buttholesz&quot;)">Show Lineage</button>' +
+        '</div>\n';
+    };
 
     var searchTitle = $('<div class="col-lg-8 col-centered text-center"><h2 class="heading seachTitle">Select an Article</h2></div>');
     $("#console").append(searchTitle, html_to_append);
