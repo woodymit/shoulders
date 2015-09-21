@@ -6,29 +6,8 @@ function getAuthorName(currentValue, i, a) {
     return '<a href=' + currentValue[1] + '>' + currentValue[0] + '</a>'
 };
 
-<<<<<<< HEAD
-for(l in foo1) {
-    papers1.push({
-        'title': foo1[l][0],
-        'title_href': "",
-        'successors': foo1[l][2],
-        'location': foo1[l][1],
-        'radius': foo1[l][3]
-    })
-}
-for(l in foo2) {
-    papers2.push({
-        'title': foo2[l][0],
-        'title_href': "",
-        'successors': foo2[l][2],
-        'location': foo2[l][1],
-        'radius': foo2[l][3]
-    })
-}
-=======
 
 function handleGraphCreateResponse(response) {
->>>>>>> c3e7459321f7ad18f435f7493a53de9919fa93b8
 
     var parsed_json = JSON.parse(response);
     // ## RENDER D3 HERE
@@ -59,10 +38,10 @@ function handleSearchResponse(response) {
 
     for (i in parsed_json) {
         var p = parsed_json[i];
-        var authors = p['author_list:'];
-        var citers = p['citers_page_href:'];
-        var title = p['title:'];
-        var title_href = p['title_href:'];
+        var authors = p['author_list'];
+        var citers = p['citers_page_href'];
+        var title = p['title'];
+        var title_href = p['title_href'];
 
         // var splits = citers.split(/cites=([\d]+)&as_sdt/);
         // citers_num = splits[1];
@@ -211,6 +190,7 @@ $(document).ready(function () {
     });
 });
 
+
 function renderD3(paperList) {
     duration=5000;
 
@@ -255,13 +235,6 @@ function renderD3(paperList) {
         .selectAll('line')
         .attr('class','line')
         .data(lineList, function(d) {return d.nodes;});
-        // get rid of old lines
-        lines.exit()
-            .attr('opacity',1)
-          .transition()
-            .duration(duration*2/3)
-            .attr("opacity", 1e-6)
-            .remove();
     // update lines that stay
     lines.transition()
         .duration(duration)
@@ -270,6 +243,13 @@ function renderD3(paperList) {
         .attr('y1',function(d){return d.endpoints[1];})
         .attr('x2',function(d){return d.endpoints[2];})
         .attr('y2',function(d){return d.endpoints[3];});
+    // get rid of old lines
+    lines.exit()
+      .attr('opacity',1)
+      .transition()
+        .duration(duration)
+        .attr("opacity", 1e-6)
+        .remove();
     // make new lines
     var lineEnter = lines.enter()
       .append('line')
@@ -287,24 +267,23 @@ function renderD3(paperList) {
         .attr('opacity',1);
 
     
-    var nodes = svg.select('.nodeGroup')
+    var nodes = svg.select('.lineGroup')
         .selectAll('g')
         .attr('class','node')
         .data(paperList, function(d) {return d.title;});
-    // get rid of old nodes
-    nodes.exit()
-      .attr('opacity',1)
-      .transition()
-        .duration(duration*2/3)
-        .attr("opacity", 1e-6)
-        .remove();
     // update nodes that stay
     nodes.transition()
         .duration(duration)
         .attr('transform', function(d){return "translate(" + d.location[0] + ',' + d.location[1] + ")";})
       .select('circle')
-        .attr('r',function(d){return d.radius;})
-        .attr('fill','white');
+        .attr('r',function(d){return d.radius;});
+    // get rid of old nodes
+    nodes.exit()
+      .attr('opacity',1)
+      .transition()
+        .duration(duration)
+        .attr("opacity", 1e-6)
+        .remove();
     // make new nodes
     nodeEnter = nodes.enter().append('g');
     nodeEnter.attr('class','node')
