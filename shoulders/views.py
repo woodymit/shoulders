@@ -49,12 +49,14 @@ def graph():
     # graph = CitationGraph(center_paper)
     # graph.expand_newest_edge()
 
-    # import ipdb
-    # ipdb.set_trace()
-
     # json_data = convertAListToPoints(
     #         graph.children, center_paper, width, height)
 
+    # # Overwrite cached json
+    # with open('json_data_1.txt', 'w') as fh:
+    #     fh.write(json_data)
+
+    # Load cached json
     with open('json_data_1.txt', 'r') as fh:
         json_data = fh.next()
 

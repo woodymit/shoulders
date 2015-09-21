@@ -7,7 +7,7 @@ def convertToJson(pape, citers): # This method converts things to a dict
     radius = pape.Radius
     mainDictionary['location'] = position
     mainDictionary['radius'] = radius
-    mainDictionary['citers'] = citers
+    mainDictionary['successors'] = citers
     return mainDictionary
 
 
@@ -21,7 +21,7 @@ def convertAListToPoints(adjList, initPaper, width, length):
     k = [1, 0.1, 0.01, 0.001] # constants that determine bubble size
     NonNegativeLevels.append([initPaper])
     NonPositiveLevels.append([initPaper])
-    globalCounter = 1
+    globalCounter = 0
     globalPaperDict = {} # Ends up containing every paper.
     globalPaperDict[initPaper] = globalCounter
     initPaper.xPos = width/2. # Center of page
@@ -94,7 +94,6 @@ def convertAListToPoints(adjList, initPaper, width, length):
             finalAns.append(j)
 
     finalerAns = [] # This is the thing we will return
-
     for i in finalAns:
         citers = []
         if i not in adjList:

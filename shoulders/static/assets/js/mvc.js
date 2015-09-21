@@ -11,7 +11,8 @@ function handleGraphCreateResponse(response) {
 
     var parsed_json = JSON.parse(response);
     // ## RENDER D3 HERE
-    console.log('parsed_json: ' + parsed_json);
+    console.log('parsed_json: '); 
+    console.log(parsed_json);
     renderD3(parsed_json);
 
 };
