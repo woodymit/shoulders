@@ -29,8 +29,9 @@ def search_terms(terms, limit):
     resp = conn.getresponse()
 
     if not resp.status == 200:
-        raise Exception('Response from Google Scholar url:' +
-                url + ' did not return with code 200')
+        raise Exception('Response from Google Scholar url: ' +
+                url + ' did not return with code 200.  Instead ' +
+                'it returned ' + str(resp.status))
 
     html = resp.read()
     return html.decode('ascii', 'ignore')
@@ -64,13 +65,8 @@ class Paper:
     def __hash__(self):
         return hash(self.title_href)
 
-    # def json_repr(self):
-    #     return json.dumps({
-    #         'title:': self.title,
-    #         'title_href:': self.title_href,
-    #         'author_list:': self.author_list,
-    #         'citers_page_href:': self.citers_page_href
-    #         })
+    def set_num_citers(self, num_citers):
+        self.num_citers = num_citers
 
     def get_data_dict(self):
         return {
@@ -92,6 +88,7 @@ class CitationGraph:
         next_edge = set()
         for parent in self.newest_edge:
             child_list = get_citing_papers(parent)
+            parent.set_num_citers(len(child_list))
             self.children[parent] = child_list
             for child in child_list:
                 if child not in self.newest_edge:
@@ -122,7 +119,10 @@ def parse_result(result_tag):
 
     citers_page_href = None
     for a_tag in result_tag.find_all('a'):
-        if re.match('Cited by [\d]+', a_tag.get_text()):
+
+        m = re.match('Cited by ([\d]+)', a_tag.get_text())
+        if m:
+            num_citers = m.group(1)
             citers_page_href = a_tag.get('href')
             break
 
@@ -145,7 +145,9 @@ def parse_result(result_tag):
 
         author_list.append((author_name, author_href))
 
-    return Paper(title, title_href, author_list, citers_page_href)
+    paper = Paper(title, title_href, author_list, citers_page_href)
+    paper.set_num_citers(int(num_citers))
+    return paper
 
 
 def get_html(rel_url):
