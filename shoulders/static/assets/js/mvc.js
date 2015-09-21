@@ -7,11 +7,27 @@ function getAuthorName(currentValue, i, a) {
 };
 
 
+function handleGraphCreateResponse(response) {
 
-function selectPaper(citers_page_href) {
+    // var parsed_json = JSON.parse(response);
+    // ## RENDER D3 HERE
+    return
+
+};
+
+
+function selectPaper(title) {
+    console.log('Log 4');
     $("#console").empty();
-    console.log(citers_page_href)
-    $("#console").append(citers_page_href);
+    $.ajax({
+            type: 'POST',
+            url: '/graph',
+            data: {'title': title,
+                    // 'citer_page_num': citers_page_num,
+                    'height': window.innerHeight,
+                    'width': window.innerWidth},
+            success: handleGraphCreateResponse
+        });
 };
 
 function handleSearchResponse(response) {
@@ -24,23 +40,28 @@ function handleSearchResponse(response) {
         var p = parsed_json[i];
         var authors = p['author_list:'];
         var citers = p['citers_page_href:'];
-        console.log(citers)
+        var title = p['title:'];
+        console.log('title:' + title);
 
-        var splits = citers.split(/cites=([\d]+)&as_sdt/)
-        citers_num = splits[1]
+        // var splits = citers.split(/cites=([\d]+)&as_sdt/);
+        // citers_num = splits[1];
 
         html_to_append = html_to_append +
         '<div class="page-header col-lg-8 col-centered searchResult">' + 
             '<h4 ><a id="search'+i.toString()+'">' + p['title:'] + '</a></h4>' +
             '<h5><a target="_blank" href="' + p['title_href:'] + '">Go to Article</a></h5>' +
             '<h5>' + authors.map(getAuthorName)  + '</h5>' +
-            '<button class="btn" onclick="selectPaper('+citers_num+')">Show Lineage</button>' +
+            '<button class="btn" onclick="selectPaper(&quot;' + title + '&quot;)">Show Lineage</button>' +
+            // '<button class="btn" onclick="selectPaper(&quot;buttholesz&quot;)">Show Lineage</button>' +
         '</div>\n';
-    }
+    };
 
     var searchTitle = $('<div class="col-lg-8 col-centered text-center"><h2 class="heading seachTitle">Select an Article</h2></div>');
+    console.log('Log 1');
     $("#console").append(searchTitle, html_to_append);
+    console.log('Log 2');
     $("#scroll").click();
+    console.log('Log 3');
 };
 
 var mvc = (function () {
@@ -170,6 +191,8 @@ $(document).ready(function () {
             window.location.hash = target;
         });
     });
+
+    // renderD3();
 });
 
 
