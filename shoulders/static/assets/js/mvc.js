@@ -267,7 +267,7 @@ function renderD3(paperList) {
         .attr('opacity',1);
 
     
-    var nodes = svg.select('.lineGroup')
+    var nodes = svg.select('.nodeGroup')
         .selectAll('g')
         .attr('class','node')
         .data(paperList, function(d) {return d.title;});
