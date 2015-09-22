@@ -38,10 +38,10 @@ function handleSearchResponse(response) {
 
     for (i in parsed_json) {
         var p = parsed_json[i];
-        var authors = p['author_list:'];
-        var citers = p['citers_page_href:'];
-        var title = p['title:'];
-        var title_href = p['title_href:'];
+        var authors = p['author_list'];
+        var citers = p['citers_page_href'];
+        var title = p['title'];
+        var title_href = p['title_href'];
 
         // var splits = citers.split(/cites=([\d]+)&as_sdt/);
         // citers_num = splits[1];
@@ -267,7 +267,7 @@ function renderD3(paperList) {
         .attr('opacity',1);
 
     
-    var nodes = svg.select('.lineGroup')
+    var nodes = svg.select('.nodeGroup')
         .selectAll('g')
         .attr('class','node')
         .data(paperList, function(d) {return d.title;});

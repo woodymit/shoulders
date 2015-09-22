@@ -70,10 +70,10 @@ class Paper:
 
     def get_data_dict(self):
         return {
-            'title:': self.title,
-            'title_href:': self.title_href,
-            'author_list:': self.author_list,
-            'citers_page_href:': self.citers_page_href
+            'title': self.title,
+            'title_href': self.title_href,
+            'author_list': self.author_list,
+            'citers_page_href': self.citers_page_href
             }
 
 
